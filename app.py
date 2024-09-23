@@ -34,8 +34,13 @@ if "messages" not in st.session_state:
 
 # add context in session state as key val pair
 for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).write(msg['text'])
-
+    # st.chat_message(msg["role"]).write(msg['text'])
+    if msg["role"] == "user":
+        # Display user messages in a bright green
+        st.markdown(f"<div style='color: #32CD32; font-weight: bold;'>User: {msg['text']}</div>", unsafe_allow_html=True)
+    else:
+        # Display bot messages in a bright blue
+        st.markdown(f"<div style='color: #1E90FF; font-weight: bold;'>Bot: {msg['text']}</div>", unsafe_allow_html=True)
 # : The walrus operator lets you assign a value to a variable and use that value within the same expression. 
 # This can be particularly useful in conditions, loops, and list comprehensions where you'd normally need separate lines for assignment and evaluation.
 # if (n := len(some_list)) > 10:
@@ -52,11 +57,13 @@ if prompt:=st.chat_input(placeholder="What is ML?") :
 
     # convert tools to agent
     search_agent=initialize_agent(tools,llm,agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,handling_parsing_errors=True)
+    #  This specifies the type of agent that uses a zero-shot approach, meaning it can react to queries without prior examples.
 
     with st.chat_message("assistant"):
-        # you want to update or display the intermediate steps, responses,thoughts , actions of agents
+        # begins a context block where any output generated will be displayed as a message from the assistant (bot).
 
         st_cb=StreamlitCallbackHandler(st.container(),expand_new_thoughts=False)
+        # you want to update or display the intermediate steps, responses,thoughts , actions of agents
 
         response=search_agent.run(st.session_state.messages,callbacks=[st_cb])
         st.session_state.messages.append({'role':'bot',"text":response})
